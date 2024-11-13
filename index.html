@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grandma's Recipes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <Header>
+        <h1>Grandma's Recipes</h1>
+        <nav id="recipe-nav">
+        </nav>
+    </Header>
+
+    <h2 id="recipeName"></h2>
+    <main>
+        <div id="left">
+           
+            <p id="description"></p>
+            <h3>Cuisine</h3>
+            <p id="cuisine"></p>
+            <div id="img"></div>
+        </div>
+
+        <div id="right">
+            <div id="tags"></div>
+            <h3>Difficulty</h3>
+            <p id="difficulty"></p>
+            <h3>Nutritional Info</h3>
+            <ul id="nutritionalInfo">
+            </ul>
+            
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Preparation Time</th>
+                        <th>Cook Time</th>
+                        <th>Servings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <p id="prepTime"></p>
+                        </td>
+                        <td>
+                            <p id="cookTime"></p>
+                        </td>
+                        <td>
+                            <p id="servings"></p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="doubleServingsButton">Double Servings</button>
+            <button id="convertToImperialButton">Convert to Imperial</button>
+            <h3>Ingredients</h3>
+            <ul id="ingredients"></ul>
+            <h3>Instructions</h3>
+            <ol id="instructions"></ol>
+
+        </div>
+    </main>
+
+    <script>
+        fetch('recipes (3).json')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                const querySearch = window.location.search;
+                const urlParams = new URLSearchParams(querySearch);
+                const recipeNumber = urlParams.get('recipe');
+
+                const recipe = data[recipeNumber - 1];
+
+                // nav
+                const navContainer = document.getElementById('recipe-nav');
+                data.forEach((recipe, index) => {
+                    const recipeLink = document.createElement('a');
+                    recipeLink.href = `?recipe=${index + 1}`;
+                    recipeLink.innerHTML = recipe.name;
+                    navContainer.appendChild(recipeLink);
+                });
+                if (recipeNumber && data[recipeNumber - 1]) {
+                    const recipe = data[recipeNumber - 1];
+                }
+
+                // left
+                recipeName.innerHTML = recipe.name;
+                description.innerHTML = recipe.description;
+                cuisine.innerHTML = recipe.cuisine;
+
+                const imgElement = document.createElement('img');
+                imgElement.src = recipe.image;
+                imgElement.style.maxWidth = '100%';
+                document.getElementById('img').appendChild(imgElement);
+
+                // right
+                difficulty.innerHTML = recipe.difficulty;
+
+                const nutritionalInfo = recipe.nutritionalInfo;
+                const nutritionalList = document.getElementById('nutritionalInfo');
+                for (const key in nutritionalInfo) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${nutritionalInfo[key]}`;
+                    nutritionalList.appendChild(listItem);
+                }
+
+                const tagsContainer = document.getElementById('tags');
+                recipe.tags.forEach(tag => {
+                    const tagLink = document.createElement('a');
+                    tagLink.innerHTML = `#${tag}`;
+                    tagLink.href = `#`;
+                    tagLink.classList.add('tag-link');
+                    tagsContainer.appendChild(tagLink);
+                });
+
+                
+                servings.innerHTML = recipe.servings;
+
+                // convert time
+                
+                function formatTime(minutes) {
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return `${hours} h ${remainingMinutes} mins`;
+    } else {
+        return `${minutes} mins`;
+    }
+}
+
+// Set formatted preparation and cook times
+prepTime.innerHTML = formatTime(recipe.prepTime);
+cookTime.innerHTML = formatTime(recipe.cookTime);
+
+                   
+                
+
+                recipe.ingredients.forEach(ingredient => {
+                    const ingredientItem = document.createElement('li');
+                    ingredientItem.innerHTML = `${ingredient.amount} ${ingredient.unit} ${ingredient.item}`;
+                    ingredientItem.setAttribute('data-amount', ingredient.amount);
+                    ingredients.appendChild(ingredientItem);
+                });
+
+                // double servings and amount
+                doubleServingsButton.addEventListener('click', () => {
+                    servings.innerHTML = recipe.servings * 2;
+                    const ingredientItems = document.querySelectorAll('#ingredients li');
+                    ingredientItems.forEach((ingredientItem, index) => {
+                        const originalAmount = parseFloat(ingredientItem.getAttribute('data-amount'));
+                        const doubledAmount = originalAmount * 2;
+                        ingredientItem.innerHTML = `${doubledAmount} ${recipe.ingredients[index].unit} ${recipe.ingredients[index].item}`;
+                    });
+                });
+
+                // imperial
+                convertToImperialButton.addEventListener('click', () => {
+                    const ingredientItems = document.querySelectorAll('#ingredients li');
+
+                    ingredientItems.forEach((ingredientItem, index) => {
+                        if (recipe.ingredients[index].unit === 'grams') {
+                            const convertedAmount = (recipe.ingredients[index].amount * 0.00220462).toFixed(2);
+                            recipe.ingredients[index].unit = 'pounds';
+                            ingredientItem.innerHTML = `${convertedAmount} pounds ${recipe.ingredients[index].item}`;
+                        }
+                    });
+                });
+
+
+                const instructionsContainer = document.getElementById('instructions');
+                recipe.instructions.forEach(instruction => {
+                    const instructionItem = document.createElement('li');
+                    instructionItem.innerHTML = instruction.text;
+                    instructionsContainer.appendChild(instructionItem);
+                });
+
+            })
+    </script>
+</body>
+
+</html>
