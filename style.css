@@ -125,7 +125,7 @@ button:hover {
         flex-direction: column;
     }
 
-    nav a{
+    nav {
         display: flex;
         flex-direction: column;
     }
