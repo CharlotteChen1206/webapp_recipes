@@ -125,6 +125,11 @@ button:hover {
         flex-direction: column;
     }
 
+    nav a{
+        display: flex;
+        flex-direction: column;
+    }
+
     #left,
 #right {
     max-width: 100%;

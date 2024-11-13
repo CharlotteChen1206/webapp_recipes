@@ -75,10 +75,13 @@
             .then(function (data) {
                 const querySearch = window.location.search;
                 const urlParams = new URLSearchParams(querySearch);
-                const recipeNumber = urlParams.get('recipe');
+               
+                let recipeNumber = urlParams.get('recipe'); // Use let instead of const
+if (!recipeNumber || !data[recipeNumber - 1]) {
+    recipeNumber = 1; // Assign default value
+}
 
-                const recipe = data[recipeNumber - 1];
-
+const recipe = data[recipeNumber - 1]; 
                 // nav
                 const navContainer = document.getElementById('recipe-nav');
                 data.forEach((recipe, index) => {
